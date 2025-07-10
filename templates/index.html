@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>疾病預測症狀輸入表單</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f9f9f9;
+  }
+  h1 {
+    color: #333;
+  }
+  form {
+    background: white;
+    padding: 20px;
+    border-radius: 6px;
+    max-width: 1200px;
+  }
+
+  .symptom-group {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+
+  .symptom-item {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+  label {
+    cursor: pointer;
+    margin-left: 5px;
+  }
+
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+
+  #result {
+    margin-top: 20px;
+    padding: 10px;
+    background: #eef;
+    border-radius: 5px;
+    white-space: pre-line;
+  }
+
+  @media (max-width: 768px) {
+    .symptom-group {
+      grid-template-columns: repeat(2, 1fr); /* 小螢幕變 2 欄 */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .symptom-group {
+      grid-template-columns: 1fr; /* 手機變 1 欄 */
+    }
+  }
+</style>
+</head>
+<body>
+
+<h1>疾病預測 - 請選擇您的症狀</h1>
+
+<form id="symptomForm">
+  <div class="symptom-group" id="symptomList">
+    <!-- JS 動態生成症狀checkbox -->
+  </div>
+  <button type="submit">送出預測</button>
+  <button type="button" id="resetBtn">重新測試</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+  // 症狀資料
+  const symptoms = {
+    "itching": "搔癢",
+    "skin_rash": "皮疹",
+    "nodal_skin_eruptions": "皮膚結節性突起",
+    "continuous_sneezing": "持續打噴嚏",
+    "shivering": "發抖",
+    "chills": "發冷",
+    "joint_pain": "關節疼痛",
+    "stomach_pain": "胃痛",
+    "acidity": "胃酸過多",
+    "ulcers_on_tongue": "舌頭潰瘍",
+    "muscle_wasting": "肌肉萎縮",
+    "vomiting": "嘔吐",
+    "burning_micturition": "排尿灼熱",
+    "spotting_ urination": "尿中有血斑",
+    "fatigue": "疲倦",
+    "weight_gain": "體重增加",
+    "anxiety": "焦慮",
+    "cold_hands_and_feets": "手腳冰冷",
+    "mood_swings": "情緒波動",
+    "weight_loss": "體重減輕",
+    "restlessness": "坐立不安",
+    "lethargy": "昏昏欲睡",
+    "patches_in_throat": "喉嚨有斑塊",
+    "irregular_sugar_level": "血糖不穩定",
+    "cough": "咳嗽",
+    "high_fever": "高燒",
+    "sunken_eyes": "眼睛凹陷",
+    "breathlessness": "呼吸困難",
+    "sweating": "流汗",
+    "dehydration": "脫水",
+    "indigestion": "消化不良",
+    "headache": "頭痛",
+    "yellowish_skin": "皮膚泛黃",
+    "dark_urine": "尿液顏色深",
+    "nausea": "噁心",
+    "loss_of_appetite": "食慾不振",
+    "pain_behind_the_eyes": "眼後疼痛",
+    "back_pain": "背痛",
+    "constipation": "便秘",
+    "abdominal_pain": "腹痛",
+    "diarrhoea": "腹瀉",
+    "mild_fever": "輕微發燒",
+    "yellow_urine": "尿液泛黃",
+    "yellowing_of_eyes": "眼睛泛黃",
+    "acute_liver_failure": "急性肝衰竭",
+    "fluid_overload": "體液滯留",
+    "swelling_of_stomach": "腹部腫脹",
+    "swelled_lymph_nodes": "淋巴結腫大",
+    "malaise": "不適感",
+    "blurred_and_distorted_vision": "視力模糊與扭曲",
+    "phlegm": "痰",
+    "throat_irritation": "喉嚨不適",
+    "redness_of_eyes": "眼睛紅",
+    "sinus_pressure": "鼻竇壓力",
+    "runny_nose": "流鼻水",
+    "congestion": "鼻塞",
+    "chest_pain": "胸痛",
+    "weakness_in_limbs": "四肢無力",
+    "fast_heart_rate": "心跳加快",
+    "pain_during_bowel_movements": "排便時疼痛",
+    "pain_in_anal_region": "肛門區疼痛",
+    "bloody_stool": "糞便帶血",
+    "irritation_in_anus": "肛門不適",
+    "neck_pain": "頸部疼痛",
+    "dizziness": "頭暈",
+    "cramps": "抽筋",
+    "bruising": "瘀青",
+    "obesity": "肥胖",
+    "swollen_legs": "腿部腫脹",
+    "swollen_blood_vessels": "血管腫脹",
+    "puffy_face_and_eyes": "臉和眼睛浮腫",
+    "enlarged_thyroid": "甲狀腺腫大",
+    "brittle_nails": "指甲脆弱",
+    "swollen_extremeties": "四肢腫脹",
+    "excessive_hunger": "過度飢餓",
+    "extra_marital_contacts": "婚外性行為",
+    "drying_and_tingling_lips": "嘴唇乾燥刺痛",
+    "slurred_speech": "說話含糊",
+    "knee_pain": "膝蓋疼痛",
+    "hip_joint_pain": "髖關節痛",
+    "muscle_weakness": "肌肉無力",
+    "stiff_neck": "脖子僵硬",
+    "swelling_joints": "關節腫脹",
+    "movement_stiffness": "動作僵硬",
+    "spinning_movements": "旋轉感",
+    "loss_of_balance": "失去平衡",
+    "unsteadiness": "不穩感",
+    "weakness_of_one_body_side": "單側身體無力",
+    "loss_of_smell": "喪失嗅覺",
+    "bladder_discomfort": "膀胱不適",
+    "foul_smell_of_urine": "尿液異味",
+    "continuous_feel_of_urine": "持續想尿感",
+    "passage_of_gases": "排氣",
+    "internal_itching": "體內搔癢",
+    "toxic_look_(typhos)": "病容（如傷寒）",
+    "depression": "憂鬱",
+    "irritability": "易怒",
+    "muscle_pain": "肌肉痛",
+    "altered_sensorium": "感知異常",
+    "red_spots_over_body": "身上有紅點",
+    "belly_pain": "腹部疼痛",
+    "abnormal_menstruation": "月經異常",
+    "dischromic_patches": "膚色不均",
+    "watering_from_eyes": "流眼水",
+    "increased_appetite": "食慾增加",
+    "polyuria": "多尿",
+    "family_history": "家族病史",
+    "mucoid_sputum": "黏液痰",
+    "rusty_sputum": "鐵鏽色痰",
+    "lack_of_concentration": "注意力不集中",
+    "visual_disturbances": "視力障礙",
+    "receiving_blood_transfusion": "接受輸血",
+    "receiving_unsterile_injections": "注射不潔針頭",
+    "coma": "昏迷",
+    "stomach_bleeding": "胃出血",
+    "distention_of_abdomen": "腹部脹大",
+    "history_of_alcohol_consumption": "酗酒史",
+    "blood_in_sputum": "痰中帶血",
+    "prominent_veins_on_calf": "小腿靜脈明顯",
+    "palpitations": "心悸",
+    "painful_walking": "行走疼痛",
+    "pus_filled_pimples": "膿皰",
+    "blackheads": "黑頭粉刺",
+    "scurring": "皮膚脫屑",
+    "skin_peeling": "脫皮",
+    "silver_like_dusting": "銀白色屑狀物",
+    "small_dents_in_nails": "指甲凹陷",
+    "inflammatory_nails": "發炎指甲",
+    "blister": "水泡",
+    "red_sore_around_nose": "鼻周紅腫",
+    "yellow_crust_ooze": "黃色滲液"
+  };
+
+  const symptomList = document.getElementById("symptomList");
+
+  // 產生checkbox
+  let index = 1;
+  for (const [key, label] of Object.entries(symptoms)) {
+    const div = document.createElement("div");
+    div.className = "symptom-item";
+    div.innerHTML = `
+      <input type="checkbox" id="${key}" name="${key}" value="1" />
+      <label for="${key}">${index}. ${label} (${key})</label>
+    `;
+    symptomList.appendChild(div);
+    index++;
+  }
+
+  // 送出事件
+  document.getElementById("symptomForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = {};
+    for (const key of Object.keys(symptoms)) {
+      formData[key] = document.getElementById(key).checked ? 1 : 0;
+    }
+
+    const apiUrl = "http://127.0.0.1:8000/predict";
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ symptoms: formData })
+      });
+
+      if (!response.ok) throw new Error("API 呼叫失敗");
+
+      const data = await response.json();
+
+      document.getElementById("result").innerText =
+  `預測疾病：${data.prediction_zh} (${data.prediction_en})\n（編碼：${data.encoded_label}）`;
+
+    } catch (error) {
+      document.getElementById("result").innerText = "發生錯誤：" + error.message;
+    }
+  });
+
+  // 重新測試清除所有勾選和結果
+  document.getElementById("resetBtn").addEventListener("click", () => {
+    for (const key of Object.keys(symptoms)) {
+      document.getElementById(key).checked = false;
+    }
+    document.getElementById("result").innerText = "";
+  });
+</script>
+
+</body>
+</html>
