@@ -1,18 +1,7 @@
 services:
   - type: web
-    name: disease-predictor-api
+    name: disease-api
     env: python
-    region: oregon      # 可依需求改成其他區域（oregon, virginia, singapore 等）
-    plan: free          # 免費方案，若要付費可改成 starter 或其他方案
+    pythonVersion: "3.11"
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
-    envVars:            # 如果有需要可放環境變數，沒有可刪除此段
-      # - key: SOME_KEY
-      #   value: some_value
-    autoDeploy: true    # Git push 自動部署
-
-    # 如需要設定靜態檔案資料夾(templates)，可加入以下設定
-    staticPublishPath: templates
-
-    # 你也可以透過以下設定指定健康檢查路徑（選用）
-    # healthCheckPath: "/"
