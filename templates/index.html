@@ -237,7 +237,7 @@
       formData[key] = document.getElementById(key).checked ? 1 : 0;
     }
 
-    const apiUrl = "http://127.0.0.1:8000/predict";
+    const apiUrl = "/predict";
 
     try {
       const response = await fetch(apiUrl, {
